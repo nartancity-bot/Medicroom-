@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Привет Мир</title>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@900&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #000;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-family: 'Unbounded', sans-serif;
+    }
+
+    /* Animated noise/starfield background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(80, 0, 120, 0.25) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 50%, rgba(0, 60, 120, 0.2) 0%, transparent 60%),
+        #000;
+      z-index: 0;
+    }
+
+    #scene {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 0;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .letter {
+      display: inline-block;
+      font-size: clamp(3rem, 8vw, 7rem);
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      line-height: 1;
+      /* Each letter animates independently */
+      animation:
+        wave-bob  1.4s ease-in-out infinite,
+        hue-spin  2.2s linear     infinite;
+      will-change: transform, color, text-shadow;
+      -webkit-text-stroke: 1px rgba(255,255,255,0.15);
+    }
+
+    /* Space between words */
+    .space {
+      display: inline-block;
+      width: 0.45em;
+    }
+
+    /* Wave: vertical bobbing — each letter offset in time */
+    @keyframes wave-bob {
+      0%   { transform: translateY(0px)   scale(1);    }
+      25%  { transform: translateY(-22px) scale(1.06); }
+      50%  { transform: translateY(0px)   scale(1);    }
+      75%  { transform: translateY(12px)  scale(0.96); }
+      100% { transform: translateY(0px)   scale(1);    }
+    }
+
+    /* Rainbow hue cycling */
+    @keyframes hue-spin {
+      0%   { color: #ff0000; text-shadow: 0 0 24px #ff0000, 0 0 60px #ff000066; }
+      14%  { color: #ff7700; text-shadow: 0 0 24px #ff7700, 0 0 60px #ff770066; }
+      28%  { color: #ffee00; text-shadow: 0 0 24px #ffee00, 0 0 60px #ffee0066; }
+      42%  { color: #00cc44; text-shadow: 0 0 24px #00cc44, 0 0 60px #00cc4466; }
+      57%  { color: #0088ff; text-shadow: 0 0 24px #0088ff, 0 0 60px #0088ff66; }
+      71%  { color: #8800ff; text-shadow: 0 0 24px #8800ff, 0 0 60px #8800ff66; }
+      85%  { color: #ff00cc; text-shadow: 0 0 24px #ff00cc, 0 0 60px #ff00cc66; }
+      100% { color: #ff0000; text-shadow: 0 0 24px #ff0000, 0 0 60px #ff000066; }
+    }
+
+    /* Stagger delays: wave ripples left → right */
+    .l0  { animation-delay:  0.00s, 0.00s; }
+    .l1  { animation-delay:  0.11s, 0.20s; }
+    .l2  { animation-delay:  0.22s, 0.40s; }
+    .l3  { animation-delay:  0.33s, 0.60s; }
+    .l4  { animation-delay:  0.44s, 0.80s; }
+    .l5  { animation-delay:  0.55s, 1.00s; }
+    .l6  { animation-delay:  0.75s, 1.30s; }   /* after space */
+    .l7  { animation-delay:  0.86s, 1.50s; }
+    .l8  { animation-delay:  0.97s, 1.70s; }
+
+    /* Subtle floating particles */
+    .particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0;
+      animation: particle-float linear infinite;
+    }
+    @keyframes particle-float {
+      0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+      10%  { opacity: 0.6; }
+      90%  { opacity: 0.3; }
+      100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+
+<div id="scene" aria-label="Привет Мир">
+  <!-- П Р И В Е Т -->
+  <span class="letter l0">П</span>
+  <span class="letter l1">р</span>
+  <span class="letter l2">и</span>
+  <span class="letter l3">в</span>
+  <span class="letter l4">е</span>
+  <span class="letter l5">т</span>
+  <!-- space -->
+  <span class="space"></span>
+  <!-- М И Р -->
+  <span class="letter l6">М</span>
+  <span class="letter l7">и</span>
+  <span class="letter l8">р</span>
+</div>
+
+<script>
+  /* ── Generate floating particles ── */
+  const container = document.getElementById('particles');
+  const colors = [
+    '#ff0055','#ff7700','#ffee00','#00dd55',
+    '#0099ff','#9900ff','#ff00cc','#ffffff'
+  ];
+  const count = 55;
+
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.classList.add('particle');
+    const size   = Math.random() * 5 + 2;          // 2–7px
+    const left   = Math.random() * 100;              // % horizontal
+    const dur    = Math.random() * 8 + 5;           // 5–13s
+    const delay  = Math.random() * 10;              // stagger
+    const color  = colors[Math.floor(Math.random() * colors.length)];
+
+    el.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${left}%;
+      background:${color};
+      box-shadow: 0 0 ${size * 3}px ${color};
+      animation-duration:${dur}s;
+      animation-delay:-${delay}s;
+    `;
+    container.appendChild(el);
+  }
+</script>
+</body>
+</html>
